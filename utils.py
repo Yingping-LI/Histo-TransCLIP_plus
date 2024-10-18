@@ -1,5 +1,5 @@
 from tqdm import tqdm
-from conch.open_clip_custom import tokenize, get_tokenizer
+from CONCH.conch.open_clip_custom import tokenize, get_tokenizer
 
 import time
 import torch

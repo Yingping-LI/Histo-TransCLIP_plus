@@ -2,13 +2,15 @@ import os
 import time
 import random
 import argparse
-import open_clip
+#import open_clip
 import numpy as np
 from datasets import get_all_dataloaders
 from utils import *
 
-# from plip.plip import PLIP
-from conch.open_clip_custom import create_model_from_pretrained
+from plip.plip import PLIP
+from open_clip.src.open_clip.factory import add_model_config,create_model_and_transforms
+from open_clip.src.open_clip.factory import create_model_from_pretrained as open_clip_create_model_from_pretrained
+from CONCH.conch.open_clip_custom import create_model_from_pretrained
 from transformers import AutoProcessor, AutoModelForZeroShotImageClassification
 
 
@@ -83,13 +85,33 @@ def main():
     if args.model == 'CLIP':
         clip_model, preprocess_val = clip.load(cfg['backbone'])
     if args.model == 'Quilt':
-        clip_model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms('hf-hub:wisdomik/QuiltNet-B-16')
+        #clip_model, preprocess_train, preprocess_val = create_model_and_transforms('hf-hub:wisdomik/QuiltNet-B-16') #Original code
+
+        # '''
+        # QuiltNet-B-16
+        # '''
+        # add_model_config('Quilt-1m/wisdomik/QuiltNet-B-16/QuiltNet-B-16.json')
+        # clip_model, preprocess_val = open_clip_create_model_from_pretrained('QuiltNet-B-16', pretrained='Quilt-1m/wisdomik/QuiltNet-B-16/open_clip_pytorch_model.bin')
+
+        # '''
+        # QuiltNet-B-16-PMB
+        # '''
+        # add_model_config('Quilt-1m/wisdomik/QuiltNet-B-16-PMB/QuiltNet-B-16-PMB.json')
+        # clip_model, preprocess_val = open_clip_create_model_from_pretrained('QuiltNet-B-16-PMB',
+        #                                                                     pretrained='Quilt-1m/wisdomik/QuiltNet-B-16-PMB/open_clip_pytorch_model.bin')
+
+        '''
+        QuiltNet-B-32
+        '''
+        add_model_config('Quilt-1m/wisdomik/QuiltNet-B-32/QuiltNet-B-32.json')
+        clip_model, preprocess_val = open_clip_create_model_from_pretrained('QuiltNet-B-32',
+                                                                            pretrained='Quilt-1m/wisdomik/QuiltNet-B-32/open_clip_pytorch_model.bin')
     elif args.model == 'CONCH':
-        clip_model, preprocess_val = create_model_from_pretrained("conch_ViT-B-16", checkpoint_path="checkpoints/conch/pytorch_model.bin")
+        clip_model, preprocess_val = create_model_from_pretrained("conch_ViT-B-16", checkpoint_path="CONCH/checkpoints/conch/pytorch_model.bin")
     elif args.model == "PLIP":
-        # clip_model, preprocess  = PLIP('vinid/plip')
-        processor = AutoProcessor.from_pretrained("vinid/plip")
-        clip_model = AutoModelForZeroShotImageClassification.from_pretrained("vinid/plip")
+        #clip_model, preprocess  = PLIP('vinid/plip')
+        #processor = AutoProcessor.from_pretrained("vinid/plip")
+        clip_model = AutoModelForZeroShotImageClassification.from_pretrained("plip/vinid/plip")
     clip_model.cuda().eval()
 
     # Prepare dataset
